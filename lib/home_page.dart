@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:todo/create_pge.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,6 +13,13 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => CreatePage()));
+        },
+        child: Icon(Icons.add),
+        elevation: 0,
+      ),
       appBar: AppBar(
         centerTitle: true,
         title: Column(
@@ -39,7 +48,7 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                     child: Container(
                       child: Text(
-                        DateTime.now().toString()
+                       DateFormat.yMEd().format(DateTime.now()),
                   ),
                 ),
                 ),
