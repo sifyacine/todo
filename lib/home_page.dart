@@ -17,7 +17,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     Provider.of<Serrvices>(context, listen: false).fetchDataProvider();
-    //fetchData();
     super.initState();
   }
 
@@ -30,8 +29,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: kBlackColor,
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-          //Navigator.push(context, MaterialPageRoute(builder: (context) => CreatePage()));
-          _key.currentState!.showBottomSheet((context) => CreatePage());
+          _key.currentState?.showBottomSheet((context) => CreatePage());
         },
         child: Icon(Icons.add , color: kWhiteColor,),
         elevation: 0,

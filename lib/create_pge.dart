@@ -29,12 +29,7 @@ class _CreatePageState extends State<CreatePage> {
 
   Widget build(BuildContext context) {
     final prov = Provider.of<Serrvices>(context, listen: false);
-    return Scaffold(
-      backgroundColor: kBlackColor,
-      appBar: AppBar(
-        backgroundColor: kBlackColor,
-      ),
-      body: Padding(
+    return Padding(
         padding: EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
@@ -104,7 +99,6 @@ class _CreatePageState extends State<CreatePage> {
             ],
           ),
         ),
-      ),
     );
   }
 }
