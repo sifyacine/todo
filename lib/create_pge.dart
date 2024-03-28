@@ -6,7 +6,8 @@ import 'package:http/http.dart' as http;
 
 
 class CreatePage extends StatefulWidget {
-  const CreatePage({Key? key}) : super(key: key);
+  Map? itemData;
+  CreatePage({super.key, this.itemData});
 
   @override
   _CreatePageState createState() => _CreatePageState();
@@ -15,7 +16,18 @@ class CreatePage extends StatefulWidget {
 class _CreatePageState extends State<CreatePage> {
   TextEditingController titleCon = TextEditingController();
   TextEditingController descriptionCon = TextEditingController();
+  bool isEdit = false;
   @override
+  void initState() {
+    final data = widget.itemData;
+    if (widget.itemData != null){
+      isEdit = true;
+      titleCon.text = data!['title'];
+      descriptionCon.text = data!['description'];
+    }
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -55,16 +67,35 @@ class _CreatePageState extends State<CreatePage> {
               Row(
                 children: [
                   Expanded(child: ElevatedButton(onPressed: (){
-                    postData();
-                  }, child: Text("creat task"))),
+                    isEdit ? updateData() : postData();
+                  }, child: Text(isEdit ? "Modify task" : "Create task"))),
                 ],
-              )
+              ),
+
             ],
           ),
         ),
       ),
     );
   }
+  // update
+  Future<void> updateData() async{
+    final id = widget.itemData!["_id"];
+    final body = {
+      "title": titleCon.text,
+      "description": descriptionCon.text,
+      "is_completed": 'false'
+    };
+    final url = Uri.parse("https://api.nstack.in/v1/todos/$id");
+    final response = await http.put(url, body: jsonEncode(body), headers: {'Content-Type' : 'application/json'});
+    if (response.statusCode == 200){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('updated '), backgroundColor: Colors.green,));
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('error '), backgroundColor: Colors.red,));
+    }
+  }
+
+
   // post
   Future<void> postData() async {
     final body = {
@@ -73,24 +104,16 @@ class _CreatePageState extends State<CreatePage> {
       "is_completed": 'false'
     };
     var url = Uri.parse("https://api.nstack.in/v1/todos");
-    var response = await http.post(url, headers: { 'content type' :  'Content-Type: application/json'}, body: jsonEncode(body),);
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-
-
-    /*var url = Uri.https('api.nstack.in', '/v1/todos');
-    var response = await http.post(url, body: {
-      "title": "string",
-      "description": "string",
-      "is_completed": 'false'});
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-     */
+    var response = await http.post(
+      url,
+      headers: { 'Content-Type' : 'application/json'},
+      body: jsonEncode(body),);
+    if (response.statusCode == 201){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('created '), backgroundColor: Colors.green,));
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('error '), backgroundColor: Colors.red,));
+    }
   }
-
-
 
 
 
