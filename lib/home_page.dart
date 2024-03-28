@@ -1,10 +1,10 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:todo/colors.dart';
 import 'package:todo/create_pge.dart';
-import 'package:http/http.dart' as http;
+import 'package:todo/see_all.dart';
+import 'package:todo/state%20management/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,22 +16,31 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
-    fetchData();
+    Provider.of<Serrvices>(context, listen: false).fetchDataProvider();
+    //fetchData();
     super.initState();
   }
 
-  List myData = [];
+  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
+    final prov = Provider.of<Serrvices>(context, listen: false);
+    List myData = Provider.of<Serrvices>(context).myData;
     return Scaffold(
+      backgroundColor: kBlackColor,
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => CreatePage()));
+          //Navigator.push(context, MaterialPageRoute(builder: (context) => CreatePage()));
+          _key.currentState!.showBottomSheet((context) => CreatePage());
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add , color: kWhiteColor,),
         elevation: 0,
+        backgroundColor: kOrangeColor,
       ),
       appBar: AppBar(
+        surfaceTintColor: kBlackColor,
+        foregroundColor: kWhiteColor,
+        backgroundColor: kBlackColor,
         centerTitle: true,
         title: Column(
           children: [
@@ -57,16 +66,39 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 Expanded(
+                  
                     child: Container(
+                      padding: EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16.0),
+                        color: kOrangeColor,
+                      ),
                       child: Text(
                        DateFormat.yMMMEd().format(DateTime.now()),
+                        style: TextStyle(
+                          color: kWhiteColor,
+                        ),
                   ),
                 ),
                 ),
-                IconButton(onPressed: (){
-                  fetchData();
-                }, icon: Icon(Icons.refresh))
+                SizedBox(
+                  width: 12.0,
+                ),
+                IconButton(
+                    style: IconButton.styleFrom(
+                      backgroundColor: kBlack2Color,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0)
+                      ),
+                      padding: EdgeInsets.all(12.0)
+                    ),
+                    onPressed: (){
+                  //fetchData();
+                }, icon: Icon(Icons.refresh, color: kWhiteColor,))
               ],
+            ),
+            SizedBox(
+              height: 16.0,
             ),
             Row(
               children: [
@@ -76,7 +108,9 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 Spacer(),
-                GestureDetector(onTap: (){} ,child: Text("see all")),
+                GestureDetector(onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SeeAll()));
+                } ,child: Text("see all")),
               ],
             ),
             Expanded(
@@ -88,7 +122,8 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.all(12.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.blue[200],
+                        color: kBlack2Color,
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -106,49 +141,75 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ],
                             ),
+                            SizedBox(
+                              height: 6.0,
+                            ),
                             Row(
                               children: [
                                 Expanded(child: Text(
                                   data['description'],
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: kGreyColor,
+                                  ),
                                 ),
                                 ),
                               ],
                             ),
                             Row(
                               children: [
-                                Text(DateFormat.yMMMEd().format(DateTime.parse(data['created_at'])).toString()),
+                                Text(DateFormat.yMMMEd().format(DateTime.parse(data['created_at'])).toString(),
+                                style: TextStyle(
+                                  color: kGreyColor,
+                                ),
+                                ),
                                 Spacer(),
                                 IconButton(
                                     onPressed: (){
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => CreatePage(itemData: data,)));
                                       },
-                                    icon: Icon(Icons.edit)),
+                                    icon: Icon(Icons.edit ,color: kGreenColor,)),
                                 IconButton(onPressed: (){
                                   showDialog(context: context, builder: (context) {
                                     return AlertDialog(
-                                      title: Text("Alert!"),
-                                      icon: Icon(Icons.warning),
+                                      backgroundColor: kBlack2Color,
+                                      title: Align(alignment:  Alignment.topCenter,child: Text("Alert!", style: TextStyle(color: kGreyColor))),
+                                      icon: Icon(Icons.warning, color: kRedColor, size: 40,),
                                       content: Text(
-                                        'are you sure you want to delete this task!!',
+                                        'are you sure you want to delete !!',
                                       ),
                                       actions: [
-                                        TextButton(onPressed: (){
-                                          delete(data["_id"]);
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            backgroundColor: kRedColor,
+                                          ),
+                                            onPressed: (){
+                                          prov.delete(idd: data["_id"]);
                                           Navigator.pop(context);
-                                        }, child: Text("YES")),
-                                        TextButton(onPressed: (){
+                                        }, child: Text("YES", style: TextStyle(color: kWhiteColor,),)),
+                                        TextButton(
+                                            style: TextButton.styleFrom(
+                                              backgroundColor: kBlackColor,
+                                            ),
+                                            onPressed: (){
                                           Navigator.pop(context);
-                                        }, child: Text("NO")),
+                                        }, child: Text("NO",  style: TextStyle(color: kWhiteColor,),)),
                                       ],
                                     );
                                   }
                                   );
-                                  //delete(data['_id']);
-                                }, icon: Icon(Icons.delete)),
-                                Checkbox(value: data['is_completed'], onChanged: (val){
-                                  check(val!, data["_id"], data["title"], data["description"]);
+                                }, icon: Icon(Icons.delete , color: kRedColor,)),
+                                Checkbox(
+                                    shape: CircleBorder(side: BorderSide(
+                                      color: kWhiteColor,
+                                    )),
+                                    activeColor: kOrangeColor,
+                                    side: BorderSide(
+                                      color: kWhiteColor,
+                                    ),
+                                    value: data['is_completed'], onChanged: (val){
+                                  prov.check(check : val!, idd : data["_id"], title : data["title"], description : data["description"]);
                                 })
                               ],
                             ),
@@ -166,43 +227,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //get
-  Future<void> fetchData() async{
-    var url = Uri.parse("https://api.nstack.in/v1/todos");
-    var response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      Map <String, dynamic> json = jsonDecode(response.body);
-      setState(() {
-        myData = json['items'];
-      });
-    }
-  }
-  // check
-  void check(bool check, String idd, String title, String description) async {
-    final url = Uri.parse("https://api.nstack.in/v1/todos/$idd");
-    final body = {
-      "title": title,
-      "description": description,
-      "is_completed": check,
-    };
-
-    final response = await http.put(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 200) {
-      fetchData();
-    } else {
-      print('Error: ${response.statusCode}');
-    }
-  }
-
-  delete(String idd)async{
-    final url = Uri.parse("https://api.nstack.in/v1/todos/$idd");
-    await http.delete(url);
-    fetchData();
-  }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo/colors.dart';
+import 'package:todo/state%20management/provider.dart';
 
 import 'home_page.dart';
 
@@ -11,10 +14,13 @@ class MyTodo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
-      theme: ThemeData(useMaterial3: true),
+    return ChangeNotifierProvider(
+      create: (context) => Serrvices(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+        theme: ThemeData(useMaterial3: true, textTheme: Theme.of(context).textTheme.apply(bodyColor: kWhiteColor)),
+      ),
     );
   }
 }
