@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/colors.dart';
-import 'package:todo/create_pge.dart';
+import 'package:todo/create_page.dart';  // Ensure the file name is correct
 import 'package:todo/see_all.dart';
-import 'package:todo/state%20management/provider.dart';
+import 'package:todo/state_management/provider.dart';  // Ensure the path is correct
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,24 +14,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
-    Provider.of<Serrvices>(context, listen: false).fetchDataProvider();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<Serrvices>(context, listen: false).fetchDataProvider();
+    });
   }
 
-  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     final prov = Provider.of<Serrvices>(context, listen: false);
     List myData = Provider.of<Serrvices>(context).myData;
+
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: kBlackColor,
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          _key.currentState?.showBottomSheet((context) => CreatePage());
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) => CreatePage(),
+          );
         },
-        child: Icon(Icons.add , color: kWhiteColor,),
+        child: Icon(Icons.add, color: kWhiteColor),
         elevation: 0,
         backgroundColor: kOrangeColor,
       ),
@@ -43,17 +51,10 @@ class _HomePageState extends State<HomePage> {
         title: Column(
           children: [
             Text(
-              "Welcom back!",
-              style: TextStyle(
-                fontSize: 16
-              ),
+              "Welcome back!",
+              style: TextStyle(fontSize: 16),
             ),
-            Text(
-              "SIF Yacine",
-              style: TextStyle(
-
-              ),
-            )
+            Text("SIF Yacine"),
           ],
         ),
       ),
@@ -64,58 +65,61 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 Expanded(
-                  
-                    child: Container(
-                      padding: EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16.0),
-                        color: kOrangeColor,
+                  child: Container(
+                    padding: EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16.0),
+                      color: kOrangeColor,
+                    ),
+                    child: Text(
+                      DateFormat.yMMMEd().format(DateTime.now()),
+                      style: TextStyle(
+                        color: kWhiteColor,
                       ),
-                      child: Text(
-                       DateFormat.yMMMEd().format(DateTime.now()),
-                        style: TextStyle(
-                          color: kWhiteColor,
-                        ),
+                    ),
                   ),
                 ),
-                ),
-                SizedBox(
-                  width: 12.0,
-                ),
+                SizedBox(width: 12.0),
                 IconButton(
-                    style: IconButton.styleFrom(
-                      backgroundColor: kBlack2Color,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0)
-                      ),
-                      padding: EdgeInsets.all(12.0)
+                  style: IconButton.styleFrom(
+                    backgroundColor: kBlack2Color,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
                     ),
-                    onPressed: (){
-                  //fetchData();
-                }, icon: Icon(Icons.refresh, color: kWhiteColor,))
+                    padding: EdgeInsets.all(12.0),
+                  ),
+                  onPressed: () {
+                    //fetchData();
+                  },
+                  icon: Icon(Icons.refresh, color: kWhiteColor),
+                )
               ],
             ),
-            SizedBox(
-              height: 16.0,
-            ),
+            SizedBox(height: 16.0),
             Row(
               children: [
-                Text("today's task"),
+                Text("Today's tasks"),
               ],
             ),
             Row(
               children: [
                 Spacer(),
-                GestureDetector(onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => SeeAll()));
-                } ,child: Text("see all")),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SeeAll()),
+                    );
+                  },
+                  child: Text("See all"),
+                ),
               ],
             ),
             Expanded(
               child: ListView.builder(
                 itemCount: myData.length,
-                itemBuilder: (context, index){
-                  Map <String, dynamic> data = myData.reversed.toList()[index];
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> data = myData.reversed.toList()[index];
                   return Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Container(
@@ -133,82 +137,129 @@ class _HomePageState extends State<HomePage> {
                                 Text(
                                   data['title'],
                                   style: TextStyle(
-                                    decoration: data['is_completed'] ? TextDecoration.lineThrough : TextDecoration.none,
+                                    decoration: data['is_completed']
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
                                     fontSize: 20,
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(
-                              height: 6.0,
-                            ),
+                            SizedBox(height: 6.0),
                             Row(
                               children: [
-                                Expanded(child: Text(
-                                  data['description'],
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: kGreyColor,
+                                Expanded(
+                                  child: Text(
+                                    data['description'],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: kGreyColor,
+                                    ),
                                   ),
-                                ),
                                 ),
                               ],
                             ),
                             Row(
                               children: [
-                                Text(DateFormat.yMMMEd().format(DateTime.parse(data['created_at'])).toString(),
-                                style: TextStyle(
-                                  color: kGreyColor,
-                                ),
+                                Text(
+                                  DateFormat.yMMMEd().format(
+                                    DateTime.parse(data['created_at']),
+                                  ),
+                                  style: TextStyle(
+                                    color: kGreyColor,
+                                  ),
                                 ),
                                 Spacer(),
                                 IconButton(
-                                    onPressed: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => CreatePage(itemData: data,)));
-                                      },
-                                    icon: Icon(Icons.edit ,color: kGreenColor,)),
-                                IconButton(onPressed: (){
-                                  showDialog(context: context, builder: (context) {
-                                    return AlertDialog(
-                                      backgroundColor: kBlack2Color,
-                                      title: Align(alignment:  Alignment.topCenter,child: Text("Alert!", style: TextStyle(color: kGreyColor))),
-                                      icon: Icon(Icons.warning, color: kRedColor, size: 40,),
-                                      content: Text(
-                                        'are you sure you want to delete !!',
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            CreatePage(itemData: data),
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            backgroundColor: kRedColor,
-                                          ),
-                                            onPressed: (){
-                                          prov.delete(idd: data["_id"]);
-                                          Navigator.pop(context);
-                                        }, child: Text("YES", style: TextStyle(color: kWhiteColor,),)),
-                                        TextButton(
-                                            style: TextButton.styleFrom(
-                                              backgroundColor: kBlackColor,
-                                            ),
-                                            onPressed: (){
-                                          Navigator.pop(context);
-                                        }, child: Text("NO",  style: TextStyle(color: kWhiteColor,),)),
-                                      ],
                                     );
-                                  }
-                                  );
-                                }, icon: Icon(Icons.delete , color: kRedColor,)),
+                                  },
+                                  icon: Icon(Icons.edit, color: kGreenColor),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          backgroundColor: kBlack2Color,
+                                          title: Align(
+                                            alignment: Alignment.topCenter,
+                                            child: Text(
+                                              "Alert!",
+                                              style: TextStyle(
+                                                color: kGreyColor,
+                                              ),
+                                            ),
+                                          ),
+                                          icon: Icon(
+                                            Icons.warning,
+                                            color: kRedColor,
+                                            size: 40,
+                                          ),
+                                          content: Text(
+                                            'Are you sure you want to delete?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                backgroundColor: kRedColor,
+                                              ),
+                                              onPressed: () {
+                                                prov.delete(idd: data["_id"]);
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                "YES",
+                                                style: TextStyle(
+                                                  color: kWhiteColor,
+                                                ),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                backgroundColor: kBlackColor,
+                                              ),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                "NO",
+                                                style: TextStyle(
+                                                  color: kWhiteColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(Icons.delete, color: kRedColor),
+                                ),
                                 Checkbox(
-                                    shape: CircleBorder(side: BorderSide(
-                                      color: kWhiteColor,
-                                    )),
-                                    activeColor: kOrangeColor,
-                                    side: BorderSide(
-                                      color: kWhiteColor,
-                                    ),
-                                    value: data['is_completed'], onChanged: (val){
-                                  prov.check(check : val!, idd : data["_id"], title : data["title"], description : data["description"]);
-                                })
+                                  shape: CircleBorder(
+                                    side: BorderSide(color: kWhiteColor),
+                                  ),
+                                  activeColor: kOrangeColor,
+                                  side: BorderSide(color: kWhiteColor),
+                                  value: data['is_completed'],
+                                  onChanged: (val) {
+                                    prov.check(
+                                      check: val!,
+                                      idd: data["_id"],
+                                      title: data["title"],
+                                      description: data["description"],
+                                    );
+                                  },
+                                )
                               ],
                             ),
                           ],
@@ -224,5 +275,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 }
